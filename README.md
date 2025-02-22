@@ -2,6 +2,6 @@
 
 How to run:
 
-cmake .
-make
-./loadfile \<filename\>
+    cmake .
+    make
+    ./loadfile \<filename\>
