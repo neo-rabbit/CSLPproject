@@ -4,4 +4,4 @@ How to run:
 
     cmake .
     make
-    ./loadfile \<filename\>
+    ./loadfile <filename>
