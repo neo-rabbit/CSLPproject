@@ -1,0 +1,3 @@
+/mnt/c/users/diogu/Desktop/ua/3_2/CSLP/CMakeFiles/loadfile.dir
+/mnt/c/users/diogu/Desktop/ua/3_2/CSLP/CMakeFiles/edit_cache.dir
+/mnt/c/users/diogu/Desktop/ua/3_2/CSLP/CMakeFiles/rebuild_cache.dir
