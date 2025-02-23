@@ -6,3 +6,4 @@ build.ninja
 cmake_install.cmake
 .cmake
 .idea
+Makefile
