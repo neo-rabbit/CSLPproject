@@ -1,28 +1,53 @@
 #include <vector>
+#include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp> // Needed for image processing functions
 
 using namespace cv;
 
-Mat loadImage(char* img_file){
+// Function to load an image from a file
+Mat loadImage(const char* img_file) {
   Mat img = imread(img_file);
+  if (img.empty()) {
+    std::cerr << "Error: Unable to load image!" << std::endl;
+    exit(1);
+  }
   return img;
 }
 
-void displayImage(Mat img){
-  imshow("__missing_title__",img);
+// Function to display an image with a given window title
+void displayImage(const std::string& title, Mat img) {
+  imshow(title, img);
   waitKey(0);
 }
 
-std::vector<Mat> splitColor(Mat img){
-  Mat red = img;
-  return {red,img,img};
+// Function to split an image into its color channels (B, G, R)
+std::vector<Mat> splitColor(Mat img) {
+  std::vector<Mat> channels(3);
+  split(img, channels); // Splits into Blue, Green, and Red channels
+  return channels;
 }
 
-int main(int argc, char** argv){
-  Mat img = loadImage(argv[1]);
-  std::vector<Mat> img_split = splitColor(img);
-  for (auto i: img_split){
-    displayImage(i);
+int main(int argc, char** argv) {
+  if (argc < 2) {
+    std::cerr << "Usage: " << argv[0] << " <image_path>" << std::endl;
+    return 1;
   }
+
+  // Load the image
+  Mat img = loadImage(argv[1]);
+
+  // Display the original image
+  displayImage("Original Image", img);
+
+  // Split the image into its color channels
+  std::vector<Mat> img_split = splitColor(img);
+
+  // Display each channel
+  displayImage("Blue Channel", img_split[0]);
+  displayImage("Green Channel", img_split[1]);
+  displayImage("Red Channel", img_split[2]);
+
+  return 0;
 }
