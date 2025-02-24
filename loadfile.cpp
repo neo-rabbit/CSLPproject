@@ -29,6 +29,12 @@ std::vector<Mat> splitColor(Mat img) {
   return channels;
 }
 
+Mat grayscale(Mat img) {
+  Mat gray;
+  cvtColor(img, gray, COLOR_BGR2GRAY);
+  return gray;
+}
+
 int main(int argc, char** argv) {
   if (argc < 2) {
     std::cerr << "Usage: " << argv[0] << " <image_path>" << std::endl;
@@ -48,6 +54,10 @@ int main(int argc, char** argv) {
   displayImage("Blue Channel", img_split[0]);
   displayImage("Green Channel", img_split[1]);
   displayImage("Red Channel", img_split[2]);
+
+  Mat img_gray = grayscale(img);
+  displayImage("Grayscale", img_gray);
+
 
   return 0;
 }
