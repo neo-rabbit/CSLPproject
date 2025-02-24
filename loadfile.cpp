@@ -38,7 +38,7 @@ Mat grayscale(Mat img) {
 
 int main(int argc, char** argv) {
   if (argc < 2) {
-    cerr << "Usage: " << argv[0] << " <image_path>" << std::endl;
+    cerr << "Usage: " << argv[0] << " <image_path>" << endl;
     return 1;
   }
 
