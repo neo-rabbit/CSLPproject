@@ -59,6 +59,21 @@ int main(int argc, char** argv) {
   Mat img_gray = grayscale(img);
   displayImage("Grayscale", img_gray);
 
+  Mat hist;
+  int histSize = 256; 
+  float range[] = { 0, 256 };
+  const float* histRange[] = { range };
+  calcHist(&img_gray, 1, 0, Mat(), hist, 1, &histSize, histRange, true, false);
+  int hist_w = 1024, hist_h = 800;
+  int bin_w = cvRound( (double) hist_w/histSize );
+  Mat histImage( hist_h, hist_w, CV_8UC3, Scalar( 0,0,0) );
+  for( int i = 1; i < histSize; i++ )
+  {
+    line( histImage, Point( bin_w*(i-1), hist_h - cvRound(hist.at<float>(i-1)) ),
+      Point( bin_w*(i), hist_h - cvRound(hist.at<float>(i)) ),
+      Scalar( 255, 255, 255), 1, 8, 0  );
+  }
+  displayImage("Histogram",histImage);
 
   return 0;
 }
