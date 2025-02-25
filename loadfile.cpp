@@ -36,6 +36,30 @@ Mat grayscale(Mat img) {
   return gray;
 }
 
+Mat histogram(Mat img) {
+  Mat hist;
+  int histSize = 256; 
+  float range[] = { 0, 256 };
+  const float* histRange[] = { range };
+  calcHist(&img, 1, 0, Mat(), hist, 1, &histSize, histRange, true, false);
+  int hist_w = 1024, hist_h = 800;
+  int bin_w = cvRound( (double) hist_w/histSize );
+  Mat histImage( hist_h, hist_w, CV_8UC3, Scalar( 0,0,0) );
+  for( int i = 1; i < histSize; i++ )
+  {
+    line( histImage, Point( bin_w*(i-1), hist_h - cvRound(hist.at<float>(i-1)) ),
+      Point( bin_w*(i), hist_h - cvRound(hist.at<float>(i)) ),
+      Scalar( 255, 255, 255), 1, 8, 0  );
+  }
+  return histImage;
+}
+
+Mat imageBlur(Mat img, Size kSize){
+  Mat img_blur;
+  blur(img, img_blur, kSize);
+  return img_blur;
+}
+
 int main(int argc, char** argv) {
   if (argc < 2) {
     cerr << "Usage: " << argv[0] << " <image_path>" << endl;
@@ -57,23 +81,15 @@ int main(int argc, char** argv) {
   displayImage("Red Channel", img_split[2]);
 
   Mat img_gray = grayscale(img);
+  displayImage("Original Image", img);
   displayImage("Grayscale", img_gray);
 
-  Mat hist;
-  int histSize = 256; 
-  float range[] = { 0, 256 };
-  const float* histRange[] = { range };
-  calcHist(&img_gray, 1, 0, Mat(), hist, 1, &histSize, histRange, true, false);
-  int hist_w = 1024, hist_h = 800;
-  int bin_w = cvRound( (double) hist_w/histSize );
-  Mat histImage( hist_h, hist_w, CV_8UC3, Scalar( 0,0,0) );
-  for( int i = 1; i < histSize; i++ )
-  {
-    line( histImage, Point( bin_w*(i-1), hist_h - cvRound(hist.at<float>(i-1)) ),
-      Point( bin_w*(i), hist_h - cvRound(hist.at<float>(i)) ),
-      Scalar( 255, 255, 255), 1, 8, 0  );
-  }
-  displayImage("Histogram",histImage);
+  Mat hist_img = histogram(img_gray);
+  displayImage("Histogram",hist_img);
+
+  Mat blur_img = imageBlur(img, Size(10,10));
+  displayImage("Original Image", img);
+  displayImage("Blurred Image",blur_img);
 
   return 0;
 }
