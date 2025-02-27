@@ -60,6 +60,36 @@ Mat imageBlur(Mat img, Size kSize){
   return img_blur;
 }
 
+// Function to compute absolute difference between two images
+Mat computeDifference(Mat img1, Mat img2) {
+  Mat img2_resized;
+  resize(img2, img2_resized, img1.size()); // Resize img2 to match img1
+  Mat diff;
+  absdiff(img1, img2_resized, diff);
+  return diff;
+}
+
+// Function to compute Mean Squared Error (MSE)
+double computeMSE(Mat img1, Mat img2) {
+  Mat img2_resized;
+  resize(img2, img2_resized, img1.size()); // Resize img2 to match img1
+  Mat diff;
+  absdiff(img1, img2_resized, diff);
+  diff.convertTo(diff, CV_32F);
+  diff = diff.mul(diff);
+  Scalar s = sum(diff);
+  double mse = (s[0] + s[1] + s[2]) / (img1.channels() * img1.total());
+  return mse;
+}
+
+// Compute Peak Signal-to-Noise Ratio (PSNR)
+double computePSNR(Mat img1, Mat img2) {
+  double mse = computeMSE(img1, img2);
+  if (mse == 0) return INFINITY;
+  double psnr = 10.0 * log10((255 * 255) / mse);
+  return psnr;
+}
+
 int main(int argc, char** argv) {
   if (argc < 2) {
     cerr << "Usage: " << argv[0] << " <image_path>" << endl;
@@ -90,6 +120,17 @@ int main(int argc, char** argv) {
   Mat blur_img = imageBlur(img, Size(10,10));
   displayImage("Original Image", img);
   displayImage("Blurred Image",blur_img);
+
+  if (argc == 3) {
+    Mat img2 = loadImage(argv[2]);
+    Mat diff_img = computeDifference(img_gray, grayscale(img2));
+    displayImage("Difference Image", diff_img);
+    double mse = computeMSE(img_gray, grayscale(img2));
+    double psnr = computePSNR(img_gray, grayscale(img2));
+
+    cout << "MSE: " << mse << endl;
+    cout << "PSNR: " << psnr << " dB" << endl;
+  }
 
   return 0;
 }
