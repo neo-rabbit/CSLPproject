@@ -90,10 +90,42 @@ double computePSNR(Mat img1, Mat img2) {
   return psnr;
 }
 
+Mat quantizeImage(Mat img, int levels) {
+  Mat quantized;
+  double scale = 255.0 / (levels - 1);
+  img.convertTo(quantized, CV_32F);
+  quantized = quantized / scale;   // Normalize values
+  quantized += 0.5;                // To correct round value
+  quantized.setTo(0, quantized < 0);
+  quantized.setTo(levels - 1, quantized > levels - 1);
+  quantized.convertTo(quantized, CV_8U);
+  quantized *= scale;               // Return to the original interval
+  return quantized;
+}
+
 int main(int argc, char** argv) {
   if (argc < 2) {
     cerr << "Usage: " << argv[0] << " <image_path>" << endl;
     return 1;
+  }
+
+  if (argc == 3) {
+    Mat img1 = loadImage(argv[1]);
+    Mat img2 = loadImage(argv[2]);
+
+    Mat img1_gray = grayscale(img1);
+    Mat img2_gray = grayscale(img2);
+
+    Mat diff_img = computeDifference(img1_gray, img2_gray);
+
+    displayImage("Difference Image", diff_img);
+    double mse = computeMSE(img1_gray, img2_gray);
+    double psnr = computePSNR(img1_gray, img2_gray);
+
+    cout << "MSE: " << mse << endl;
+    cout << "PSNR: " << psnr << " dB" << endl;
+
+    return 0;
   }
 
   // Load the image
@@ -121,16 +153,18 @@ int main(int argc, char** argv) {
   displayImage("Original Image", img);
   displayImage("Blurred Image",blur_img);
 
-  if (argc == 3) {
-    Mat img2 = loadImage(argv[2]);
-    Mat diff_img = computeDifference(img_gray, grayscale(img2));
-    displayImage("Difference Image", diff_img);
-    double mse = computeMSE(img_gray, grayscale(img2));
-    double psnr = computePSNR(img_gray, grayscale(img2));
+  // Experiment with quantization
+  int levels = 16; // Change this to test different levels
+  Mat quantized_img = quantizeImage(img_gray, levels);
+  displayImage("Quantized Image", quantized_img);
 
-    cout << "MSE: " << mse << endl;
-    cout << "PSNR: " << psnr << " dB" << endl;
-  }
+  // Compute MSE and PSNR for quantized image
+  double mse_quantized = computeMSE(img_gray, quantized_img);
+  double psnr_quantized = computePSNR(img_gray, quantized_img);
+
+  cout << "Quantization Levels: " << levels << endl;
+  cout << "MSE (Quantized): " << mse_quantized << endl;
+  cout << "PSNR (Quantized): " << psnr_quantized << " dB" << endl;
 
   return 0;
 }
