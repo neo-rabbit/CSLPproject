@@ -1,0 +1,9 @@
+# CMake build artifacts
+CMakeCache.txt
+CMakeFiles/
+cmake-build-default-event-trace
+build.ninja
+cmake_install.cmake
+.cmake
+.idea
+Makefile
