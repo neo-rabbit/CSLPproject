@@ -9,10 +9,10 @@ int main(int argc, char** argv) {
         return 1;
     }
     BitStream bstream(argv[1]);
-    bool bit;
-    for (int i=0; i < 80; i++){
+    int bit = 0;
+    while (bit != -1){
         bit = bstream.readBit();
-        cout << bit;
+        if (bit != -1) cout << bit;
     }
     cout << endl;
     return 0;

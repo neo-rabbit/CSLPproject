@@ -13,7 +13,7 @@ class BitStream {
     public:
         BitStream(char* file);
         void writeBit(bool bit);
-        bool readBit();
+        int readBit();
         void writeBits(uint N, uint bits);
         uint readBits(uint N);
         void writeString(char* str);

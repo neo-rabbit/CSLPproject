@@ -12,21 +12,26 @@ BitStream::BitStream(char* file){
 void BitStream::writeBit(bool bit){
 
 }
-bool BitStream::readBit(){
+int BitStream::readBit(){
     ifstream readfile(filename);
     readfile.seekg(position);
-    char curChar = readfile.get();
-    readfile.close();
-    if (padding == 1){
-        padding = 8;
-        position++;
+    char curChar;
+    if (readfile.get(curChar)){
+        readfile.close();
+        curChar = curChar >> padding - 1;
+        curChar = curChar & 1;
+        if (padding == 1){
+            padding = 8;
+            position++;
+        } else {
+            padding--;
+        }
+        if (curChar == 0) return 0;
+        else return 1;
     } else {
-        padding--;
+        readfile.close();
+        return -1;
     }
-    curChar = curChar >> padding - 1;
-    curChar = curChar & 1;
-    if (curChar == 0) return 0;
-    else return 1;
 }
 void BitStream::writeBits(uint N, uint bits){
     
