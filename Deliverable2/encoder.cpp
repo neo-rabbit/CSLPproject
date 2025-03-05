@@ -8,12 +8,21 @@ int main(int argc, char** argv) {
         cerr << "Usage: " << argv[0] << " <input_file> <output_file>" << endl;
         return 1;
     }
-    BitStream bstream(argv[1]);
-    int bit = 0;
-    while (bit != -1){
-        bit = bstream.readBit();
-        if (bit != -1) cout << bit;
+    ifstream input_file(argv[1]);
+    BitStream bstream(argv[2]);
+    char bitChar;
+    bool bit;
+    while (input_file.get(bitChar)){
+        if (bitChar == '1'){
+            bit = 1;
+        } else if (bitChar == '0'){
+            bit = 0;
+        } else {
+            cout << endl;
+            cerr << "Invalid input file" << endl;
+            return 1;
+        }
+        bstream.writeBit(bit);
     }
-    cout << endl;
     return 0;
 }
