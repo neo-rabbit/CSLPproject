@@ -12,19 +12,19 @@ BitStream::BitStream(char* file){
 }
 void BitStream::writeBit(bool bit){
     ofstream writefile;
-    writefile.open(filename, ios_base::app);
     char byte;
     if (bit) {
         nextByte = nextByte | (1 << padding - 1);
     }
     if (padding == 1){
         padding = 8;
+        writefile.open(filename, ios_base::app);
         writefile.put(nextByte);
+        writefile.close();
         nextByte = 0;
     } else {
         padding--;
     }
-    writefile.close();
 }
 int BitStream::readBit(){
     ifstream readfile(filename);
