@@ -9,7 +9,7 @@ class BitStream {
         char* filename;
         int position;
         int padding;
-        int filesize;
+        char nextByte;
     public:
         BitStream(char* file);
         void writeBit(bool bit);
