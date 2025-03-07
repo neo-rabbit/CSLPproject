@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
     int bit = 0;
     while (bit != -1){
         bit = bstream.readBit();
-        if (bit != -1) output_file << bit;
+        if (bit != -1) output_file.put(bit);
     }
     return 0;
 }

@@ -6,7 +6,8 @@
 
 class BitStream {
     private:
-        char* filename;
+        std::ifstream readfile;
+        std::ofstream writefile;
         int position;
         int padding;
         char nextByte;

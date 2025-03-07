@@ -5,37 +5,33 @@
 using namespace std;
 
 BitStream::BitStream(char* file){
-    filename = file;
+    readfile.open(file);
+    writefile.open(file, ios_base::app);
     position = 0;
-    padding = 8;
+    padding = 7;
     nextByte = 0;
 }
 void BitStream::writeBit(bool bit){
-    ofstream writefile;
     char byte;
     if (bit) {
-        nextByte = nextByte | (1 << padding - 1);
+        nextByte = nextByte | (1 << padding);
     }
-    if (padding == 1){
-        padding = 8;
-        writefile.open(filename, ios_base::app);
+    if (padding == 0){
+        padding = 7;
         writefile.put(nextByte);
-        writefile.close();
         nextByte = 0;
     } else {
         padding--;
     }
 }
 int BitStream::readBit(){
-    ifstream readfile(filename);
     readfile.seekg(position);
     char curChar;
     if (readfile.get(curChar)){
-        readfile.close();
-        curChar = curChar >> padding - 1;
+        curChar = curChar >> padding;
         curChar = curChar & 1;
-        if (padding == 1){
-            padding = 8;
+        if (padding == 0){
+            padding = 7;
             position++;
         } else {
             padding--;
@@ -43,7 +39,6 @@ int BitStream::readBit(){
         if (curChar == 0) return 0;
         else return 1;
     } else {
-        readfile.close();
         return -1;
     }
 }
