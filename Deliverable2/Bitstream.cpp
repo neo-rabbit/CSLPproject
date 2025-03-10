@@ -61,7 +61,7 @@ uint64_t BitStream::readBits(uint8_t N) {
     uint64_t result = 0;
     for (int i = 0; i < N; i++) {
         int bit = readBit();
-        if (bit == -1) return result;
+        if (bit == -1) return 0;  // EOF or end of data
         result = (result << 1) | bit;
     }
     return result;
@@ -78,12 +78,15 @@ void BitStream::writeString(const std::string& str) {
     }
 }
 
-
 std::string BitStream::readString(size_t length) {
     std::string result;
     for (size_t i = 0; i < length; i++) {
-        char c = static_cast<char>(readBits(8));
-        result.push_back(c);
+        int bit = readBit(); // Read a single bit
+        if (bit == -1) {
+            return result; // End of file, return the string collected so far
+        }
+        // Append '0' or '1' to the result string
+        result += (bit ? '1' : '0');
     }
-    return result;
+    return result; // Return the string of bits
 }
