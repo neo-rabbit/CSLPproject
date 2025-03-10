@@ -69,9 +69,15 @@ uint64_t BitStream::readBits(uint8_t N) {
 
 void BitStream::writeString(const std::string& str) {
     for (char c : str) {
-        writeBits(c, 8);
+        // Ensure that the character is either '0' or '1', and call writeBit
+        if (c == '0') {
+            writeBit(0);  // Write bit 0
+        } else if (c == '1') {
+            writeBit(1);  // Write bit 1
+        }
     }
 }
+
 
 std::string BitStream::readString(size_t length) {
     std::string result;
