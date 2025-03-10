@@ -1,21 +1,30 @@
 #include <iostream>
 #include <fstream>
-#include "BitStream.h"
+#include "Bitstream.h"
 
-using namespace std;
+void decodeFile(const std::string& inputFilename, const std::string& outputFilename) {
+    std::ofstream outputFile(outputFilename);
+    if (!outputFile) {
+        std::cerr << "Error: Unable to open output file!" << std::endl;
+        return;
+    }
 
-int main(int argc, char** argv) {
+    BitStream bitStream(inputFilename, false); // Read mode
+    int bit;
+    while ((bit = bitStream.readBit()) != -1) {
+        outputFile.put(bit ? '1' : '0');
+    }
+
+    outputFile.close();
+    std::cout << "Decoding complete: " << outputFilename << " generated." << std::endl;
+}
+
+int main(int argc, char* argv[]) {
     if (argc != 3) {
-        cerr << "Usage: " << argv[0] << " <input_file> <output_file>" << endl;
+        std::cerr << "Usage: " << argv[0] << " <input_binary_file> <output_text_file>" << std::endl;
         return 1;
     }
-    BitStream bstream(argv[1]);
-    ofstream output_file;
-    output_file.open(argv[2],ios_base::app);
-    int bit = 0;
-    while (bit != -1){
-        bit = bstream.readBit();
-        if (bit != -1) output_file.put(bit);
-    }
+
+    decodeFile(argv[1], argv[2]);
     return 0;
 }
