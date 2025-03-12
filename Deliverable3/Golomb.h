@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cmath>
 
 class GolombCoding {
 private:
@@ -11,8 +12,8 @@ private:
 
 public:
     GolombCoding(bool il);
-    ~GolombCoding();
-    std::vector<bool> encode(int n);
+    //~GolombCoding();
+    std::vector<bool> encode(int n, int m);
     int decode(std::vector<bool> bits);
 };
 
