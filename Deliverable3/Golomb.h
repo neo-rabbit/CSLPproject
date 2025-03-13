@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <cmath>
+#include "../Deliverable2/Bitstream.h"
 
 class GolombCoding {
 private:
@@ -12,9 +13,8 @@ private:
 
 public:
     GolombCoding(bool il);
-    //~GolombCoding();
-    std::vector<bool> encode(int n, int m);
-    int decode(std::vector<bool> bits);
+    void encode(BitStream &bitStream, int n, int m);
+    int decode(BitStream &bitStream, int m);
 };
 
 #endif

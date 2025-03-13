@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <cmath>
 #include "Golomb.h"
@@ -7,67 +6,106 @@
 
 using namespace std;
 
-GolombCoding::GolombCoding(bool il){
+GolombCoding::GolombCoding(bool il) {
     interleaving = il;
 }
 
-vector<bool> GolombCoding::encode(int n, int m){
-    vector<bool> res = {};
+void GolombCoding::encode(BitStream &bitStream, int n, int m) {
     int N;
-    if (interleaving){
-        // set up positive/negative interleaving
-        if (n>=0) {
-            N = n*2;
-        } else {
-            N = n*(-2)-1;
-        }
+    if (interleaving) {
+        // Zigzag interleaving
+        N = (n >= 0) ? (n * 2) : (-n * 2 - 1);
     } else {
+        // Sign and magnitude
         N = abs(n);
-        // Represent signal by sign and magnitude
-        if (n>=0){
-            res.push_back(0);
-        } else {
-            res.push_back(1);
-        }
+        bitStream.writeBit(n < 0); // Write sign bit (0 for positive, 1 for negative)
     }
-    int q = floor(N/m);
-    int r = N%m;
-    // Represnt q by its unary code
-    for(int i=0; i<q; i++){
-        res.push_back(1);
+
+    int q = N / m;
+    int r = N % m;
+
+    // Unary encoding of q (q ones followed by a zero)
+    for (int i = 0; i < q; i++) {
+        bitStream.writeBit(1);
     }
-    res.push_back(0);
-    // Represent r by its binary code
-    if (m%2 == 0){
-        for (int i = m/2 - 1; i >= 0; i--) {
-            res.push_back((r >> i) & 1);
-        }
+
+    bitStream.writeBit(0);
+
+    // Optimal binary encoding of r
+    int b = ceil(log2(m));
+    if (r < (1 << b) - m) {
+        bitStream.writeBits(r, b - 1); // Use b-1 bits
     } else {
-        int b = ceil(log2(m));
-        if (r < exp2(b)-m){
-            for (int i = b - 2; i >= 0; i--) {
-                res.push_back((r >> i) & 1);
-            }
-        } else {
-            for (int i = b - 1; i >= 0; i--) {
-                res.push_back(((r+int(exp2(b))-m) >> i) & 1);
-            }
+        bitStream.writeBits(r + ((1 << b) - m), b); // Use b bits
+    }
+}
+
+int GolombCoding::decode(BitStream &bitStream, int m) {
+    int q = 0;
+    while (bitStream.readBit() == 1) {
+        q++;
+    }
+
+    int b = ceil(log2(m));
+    int threshold = (1 << b) - m;
+    int r = bitStream.readBits(b - 1);
+    if (r >= threshold) {
+        r = (r << 1) | bitStream.readBit();
+        r -= threshold;
+    }
+
+    int N = q * m + r;
+    if (interleaving) {
+        return (N % 2 == 0) ? (N / 2) : -(N / 2) - 1;
+    } else {
+        return bitStream.readBit() ? -N : N; // Read sign bit
+    }
+}
+
+int main() {
+    string inputFilename = "input.txt";
+    string outputFilename = "encoded.bin";
+    string decodedFilename = "decoded.txt";
+    int m = 5;
+
+    ifstream inputFile(inputFilename);
+    if (!inputFile) {
+        cerr << "Error opening input.txt!" << endl;
+        return 1;
+    }
+
+    BitStream bitStream(outputFilename, true);
+    GolombCoding golomb(true);
+
+    vector<int> originalNumbers;
+    int num;
+
+    while (inputFile >> num) {
+        originalNumbers.push_back(num);
+        golomb.encode(bitStream, num, m);
+    }
+
+    inputFile.close();
+    bitStream.~BitStream();
+
+    BitStream bitStreamRead(outputFilename, false);
+    ofstream decodedFile(decodedFilename);
+    if (!decodedFile) {
+        cerr << "Error opening decoded.txt!" << endl;
+        return 1;
+    }
+
+    cout << "Original -> Decoded\n";
+    for (int original : originalNumbers) {
+        int decodedValue = golomb.decode(bitStreamRead, m);
+        decodedFile << decodedValue << endl;
+        cout << original << " -> " << decodedValue << endl;
+
+        if (original != decodedValue) {
+            cerr << "Error: mismatch detected!" << endl;
         }
     }
-    return res;
-}
 
-int GolombCoding::decode(vector<bool> bits){
-    return 0;
-}
-
-int main(int argc, char** argv){
-    GolombCoding golomb(true);
-    for(int i = -4; i < 16; i++){
-        vector<bool> v = golomb.encode(i, 5);
-        for(int j=0; j<v.size(); j++)
-            cout << v[j];
-        cout << endl;
-    }
+    decodedFile.close();
     return 0;
 }
