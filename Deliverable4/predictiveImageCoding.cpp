@@ -80,7 +80,7 @@ void decodeImageLossless(const string& inputPath, const string& outputImagePath,
 int main() {
     string originalImage = "./landscape.png";
     string encodedFile = "encoded_lossless.bin";
-    string decodedImage = "decoded_landscape.png";
+    string decodedImage = "./decoded_landscape.png";
     int m = 8;
     bool useInterleaving = true;
 
@@ -90,11 +90,23 @@ int main() {
     cv::Mat orig = cv::imread(originalImage);
     cv::Mat recon = cv::imread(decodedImage);
 
-    if (cv::countNonZero(orig != recon) == 0)
+    if (orig.empty() || recon.empty()) {
+        cerr << "Failed to load images for comparison!" << endl;
+        return 1;
+    }
+
+    // Compare properly using absdiff and grayscale
+    cv::Mat diff;
+    cv::absdiff(orig, recon, diff);
+    if (diff.channels() > 1) {
+        cv::cvtColor(diff, diff, cv::COLOR_BGR2GRAY);
+    }
+
+    int nonZeroDiffs = cv::countNonZero(diff);
+    if (nonZeroDiffs == 0)
         cout << "Success: Images are identical" << endl;
     else
-        cout << "Mismatch: Decoded image differs from original" << endl;
+        cout << "Mismatch: " << nonZeroDiffs << " differing pixels" << endl;
 
     return 0;
 }
-
